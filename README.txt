@@ -23,19 +23,19 @@ algorithms.
 2 RELEASE NOTES
 ---------------
 
-This repository is a porting of NiftyRec 2.3.2 as it is available on it website.
+This repository is a porting of NiftyRec 2.3.2 as it is available on its website.
 Some changes have been made to the source code, so that it is no longer backward
 compatible, but it now fully supports the latest stable version of occiput 
-(in its current stable version available via pip) and the beta of occiput-suite
-now under development at https://github.com/mscipio/occiput-suite.
+(in its current stable version available via pip) and the cutting-edge development
+at https://github.com/TomographyLab/Occiput .
 
-This new version of NiftyRec will be called 3.0.0, as to underline the dramatic changes
-wrt the previous release.
+This new version of NiftyRec will be called 3.0.0, as to underline the dramatic 
+changes with respect to the previous releases.
 
 --------------------
 
-For the sake of completeness, and to ackowledge the work of the original developers,
-the original changelog will follow:
+For the sake of completeness, and to acknowledge the work of the original developers,
+the original change-log will follow:
 
 
 -- NiftyRec 1.0 (Rel. Nov 2010)-- 
@@ -224,7 +224,7 @@ THE POSSIBILITY OF SUCH DAMAGE.
 ---------
 7 CONTACT
 ---------
-Please contact Stefano Pedemonte (s.pedemonte@cs.ucl.ac.uk)
+Please contact us at occiput.reconstruction@gmail.com
 
 ##############################################################################
 
