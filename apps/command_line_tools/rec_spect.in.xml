@@ -1,0 +1,67 @@
+<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<executable>
+  <category>Reconstruction</category>
+  <title>REC SPECT</title>
+  <description>
+  Reconstruct SPECT images from sinogram data
+  </description>
+  <version>1.4</version>
+  <documentation-url>http://sourceforge.net/niftyrec</documentation-url>
+  <license>http://sourceforge.net/niftyrec</license>
+  <contributor>UCL</contributor>
+  <parameters>
+    <label>Workspace IO</label>
+    <description>Input images</description>
+    <image>
+      <name>Sinogram</name>
+      <label>Sinogram</label>
+      <channel>input</channel>
+      <description>Sinogram data</description>
+    </image>
+    <image>
+      <name>OutputActivity</name>
+      <label>Output Activity</label>
+      <channel>output</channel>
+      <description>Output activity</description>
+    </image>
+  </parameters>
+  <parameters>
+    <label>SPECT Acquisition Parameters</label>
+    <description>
+    Parameters of the SPECT acquisition
+    </description>
+    <double>
+      <name>FirstCamera</name>
+      <longflag>firstcamera</longflag>
+      <description>
+      First camera position in degrees
+      </description>
+      <label>First Camera Position</label>
+      <default>0.0</default>
+    </double>
+    <double>
+      <name>LastCamera</name>
+      <longflag>lastcamera</longflag>
+      <description>
+      Last camera position in degrees
+      </description>
+      <label>Last Camera Position</label>
+      <default>180.0</default>
+    </double>
+  </parameters>
+  <parameters>
+    <label>Parameters</label>
+    <description>
+    Parameters for the reconstruction
+    </description>
+    <integer>
+      <name>iterations</name>
+      <longflag>iterations</longflag>
+      <description>
+      An integer without constraints
+      </description>
+      <label>Iterations</label>
+      <default>20</default>
+    </integer>
+  </parameters>
+</executable>

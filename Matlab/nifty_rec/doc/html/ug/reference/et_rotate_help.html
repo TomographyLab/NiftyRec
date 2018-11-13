@@ -1,0 +1,128 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      --><title>et_rotate</title><meta name="generator" content="MATLAB 7.9"><meta name="date" content="2010-05-27"><meta name="m-file" content="et_rotate_help"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h1>et_rotate</h1><!--introduction--><p>Rotation of 2D and 3D images. GPU accelerated.</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Description</a></li><li><a href="#2">GPU acceleration</a></li><li><a href="#3">Algorithm notes</a></li><li><a href="#4">Example</a></li><li><a href="#5">See also</a></li><li><a href="#6">Source</a></li></ul></div><h2>Description<a name="1"></a></h2><p>|out_image = et_rotate(in_image, rotation, center, use_gpu, background)</p><p><tt>in_image</tt> is a 2D or 3D matrix.</p><p><tt>rotation</tt> specifies rotation in radians along <tt>(x,y,z)</tt> axis.</p><p><tt>center</tt> is the center of rotation <tt>(xc,yc,zc)</tt>. The unit measure is pixels, but it does not necessarily need to be integer.</p><p><tt>use_gpu</tt> is optional and it enables GPU acceleration if a compatible GPU device is installed in the system. By default use_gpu is set to 0 (disabled).</p><p><tt>background</tt> is the value the background is set to when performing rotation. It defaults to <tt>0</tt>.</p><h2>GPU acceleration<a name="2"></a></h2><p>If a CUDA compatible Grahpics Processing Unit (GPU) is installed, the projection algorithm can take advantage of it. Set use_gpu parameter to <tt>1</tt> to enable GPU acceleration. If GPU acceleration is not available, the value of the parameter is uninfluential.</p><h2>Algorithm notes<a name="3"></a></h2><p>Rotation is performed by rotating back the support of the target image and resampling the source image by trilinear interpolation.</p><h2>Example<a name="4"></a></h2><pre class="codeinput">N = 128;
+use_gpu = 1;
+background = 0;
+in_image = ones(N,N,N);
+rotation = [0.0:pi/8:pi/4];
+center = [N/2, N/2, N/2];
+out_image = et_rotate(in_image,rotation,center,use_gpu,background);
+</pre><h2>See also<a name="5"></a></h2><p><a href="et_affine_help.html"><tt>et_affine</tt></a>, <a href="et_project_help.html"><tt>et_project</tt></a>, <a href="et_backproject_help.html"><tt>et_backproject</tt></a>, <a href="et_set_gpu_help.html"><tt>et_set_gpu</tt></a>, <a href="et_list_gpus_help.html"><tt>et_list_gpus</tt></a>,</p><h2>Source<a name="6"></a></h2><p>Stefano Pedemonte</p><p>Copyright 2009-2010 CMIC-UCL. Gower Street, London, UK</p><p class="footer"><br>
+      Published with MATLAB&reg; 7.9<br></p></div><!--
+##### SOURCE BEGIN #####
+%% et_rotate
+% Rotation of 2D and 3D images. GPU accelerated.
+%
+%% Description
+% |out_image = et_rotate(in_image, rotation, center, use_gpu, background)
+%
+% |in_image| is a 2D or 3D matrix.
+%
+% |rotation| specifies rotation in radians along |(x,y,z)| axis.
+%
+% |center| is the center of rotation |(xc,yc,zc)|. The unit measure is pixels, but it does not 
+% necessarily need to be integer.
+%
+% |use_gpu| is optional and it enables GPU acceleration if a compatible GPU 
+% device is installed in the system. By default use_gpu is set to 0 (disabled).
+%
+% |background| is the value the background is set to when performing rotation.
+% It defaults to |0|.
+%
+%% GPU acceleration
+% If a CUDA compatible Grahpics Processing Unit (GPU) is installed, 
+% the projection algorithm can take advantage of it. Set use_gpu parameter
+% to |1| to enable GPU acceleration. If GPU acceleration is not available, 
+% the value of the parameter is uninfluential.
+%
+%% Algorithm notes
+% Rotation is performed by rotating back the support of the target image and resampling 
+% the source image by trilinear interpolation. 
+%
+%
+%% Example
+N = 128;
+use_gpu = 1;
+background = 0;
+in_image = ones(N,N,N);
+rotation = [0.0:pi/8:pi/4];
+center = [N/2, N/2, N/2];
+out_image = et_rotate(in_image,rotation,center,use_gpu,background);
+
+%% See also
+% <et_affine_help.html |et_affine|>,
+% <et_project_help.html |et_project|>, <et_backproject_help.html |et_backproject|>,
+% <et_set_gpu_help.html |et_set_gpu|>, <et_list_gpus_help.html |et_list_gpus|>,
+%
+% 
+%% Source
+% Stefano Pedemonte
+%
+% Copyright 2009-2010 CMIC-UCL.
+% Gower Street, London, UK
+
+
+##### SOURCE END #####
+--></body></html>

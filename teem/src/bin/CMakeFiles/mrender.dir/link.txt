@@ -1,0 +1,1 @@
+/usr/bin/gcc    -O3 -DNDEBUG   CMakeFiles/mrender.dir/mrender.c.o  -o ../../../bin/mrender -rdynamic ../../../bin/libteem.a -lbz2 /usr/local/lib/libz.so -lpng /usr/local/lib/libz.so -lpng -lpthread -lm -Wl,-rpath,/home/spedemon/Desktop/niftyinstall//lib 

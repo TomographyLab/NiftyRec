@@ -1,0 +1,1 @@
+/usr/bin/gcc    -O3 -DNDEBUG   CMakeFiles/overrgb.dir/overrgb.c.o  -o ../../../bin/overrgb -rdynamic ../../../bin/libteem.a -lbz2 /usr/local/lib/libz.so -lpng /usr/local/lib/libz.so -lpng -lpthread -lm -Wl,-rpath,/home/spedemon/Desktop/niftyinstall//lib 

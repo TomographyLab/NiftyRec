@@ -1,0 +1,15 @@
+
+% Please contribute if you find this software useful.
+% Report bugs to luigi.rosa@tiscali.it
+%
+%*****************************************************************
+% Luigi Rosa
+% Via Centrale 27
+% 67042 Civita di Bagno
+% L'Aquila --- ITALY 
+% email  luigi.rosa@tiscali.it
+% mobile +39 340 3463208 
+% http://utenti.lycos.it/matlab
+%*****************************************************************
+%
+

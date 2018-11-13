@@ -1,0 +1,105 @@
+<?xml version='1.0' encoding="utf-8"?>
+<toc version="2.0">
+<!-- First tocitem specifies top level in Help browser Contents pane -->
+<!-- This can be a roadmap page, as shown below, or a content page -->
+
+    <tocitem target="seg_product_page.html">NiftySeg Toolbox
+        <!-- Nest tocitems to create hierarchical entries in  Contents-->
+        <!-- To include icons, use the following syntax for tocitems: -->
+        <!-- <tocitem target="foo.html" image="HelpIcon.NAME"> -->
+        <!-- Title-of-Section </tocitem> -->
+        <!-- where NAME is one of the following (use capital letters): -->
+        <!-- FUNCTION, ug, EXAMPLES, BLOCK, GETTING_STARTED, -->
+        <!-- DEMOS, RELEASE_NOTES --> 
+        <!-- Icon images used for these entries are also stored in -->
+        <!-- matlabroot/toolbox/matlab/icons -->
+
+
+
+        <!-- A Getting Started Guide usually comes first -->
+        <tocitem target="./ug/getting_started.html" image="$toolbox/matlab/icons/help_gs.png">
+            Getting Started with the NiftySeg Segmentation Toolbox
+            <tocitem target="./ug/requirements.html">System Requirements
+            </tocitem>
+            <tocitem target="./ug/features.html">Features
+                <!-- 2nd and lower TOC levels usually have anchor IDs -->
+                <tocitem target="./ug/feature_1.html#10187">Feature 1
+                </tocitem>
+                <tocitem target="./ug/feature_2.html#10193">Feature 2
+                </tocitem>
+            </tocitem>
+        </tocitem>
+
+
+
+        <!-- User Guide comes next -->
+        <tocitem target="./ug/et_userguide_intro.html" 
+            image="$toolbox/matlab/icons/help_ug.png">NiftySeg User Guide
+            <tocitem target="./ug/et_ch_1.html">Setting Up NiftySeg Sgmentation Toolbox</tocitem>
+        </tocitem>
+
+
+
+        <!-- Function reference next -->
+        <!-- The first file lists all of the functions, categorizing them -->
+        <tocitem target="./ug/reference/et_functions_by_cat.html">Functions 
+            <!-- First category, with link to anchor in above page -->
+            <tocitem target="./ug/reference/et_functions_by_cat.html#1">Projection and Backprojection
+                <!-- Inside category, list its functions alphabetically -->
+                <tocitem target="./ug/reference/et_project_help.html">et_project</tocitem>
+                <tocitem target="./ug/reference/et_backproject_help.html">et_backproject</tocitem>
+            </tocitem>
+            <tocitem target="./ug/reference/et_functions_by_cat.html#2">Gaussian Mixture
+                <!-- Inside category, list its functions alphabetically -->
+                <tocitem target="./ug/reference/et_em_gaussian_mixture_help.html">et_em_gaussian_mixture</tocitem>
+            </tocitem>
+            <tocitem target="./ug/reference/et_functions_by_cat.html#3">Joint Entropy
+                <!-- Inside category, list its functions alphabetically -->
+                <tocitem target="./ug/reference/et_je_gradient_help.html">et_je_gradient</tocitem>
+            </tocitem>
+            <tocitem target="./ug/reference/et_functions_by_cat.html#4">GPU Acceleration
+                <!-- Inside category, list its functions alphabetically -->
+                <tocitem target="./ug/reference/et_list_gpus_help.html">et_list_gpus</tocitem>
+                <tocitem target="./ug/reference/et_set_gpu_help.html">et_set_gpu</tocitem>
+                <tocitem target="./ug/reference/et_rotate_help.html">et_rotate</tocitem>
+                <tocitem target="./ug/reference/et_affine_help.html">et_affine</tocitem>
+                <tocitem target="./ug/reference/et_convolve_help.html">et_convolve</tocitem>
+                <tocitem target="./ug/reference/et_project_help.html">et_project</tocitem>
+                <tocitem target="./ug/reference/et_backproject_help.html">et_backproject</tocitem>
+            </tocitem>
+            <tocitem target="./ug/reference/et_functions_by_cat.html#5">Miscellaneous
+                <!-- Inside category, list its functions alphabetically -->
+                <tocitem target="./ug/reference/et_rotate_help.html">et_rotate</tocitem>
+                <tocitem target="./ug/reference/et_affine_help.html">et_affine</tocitem>
+                <tocitem target="./ug/reference/et_convolve_help.html">et_convolve</tocitem>
+                <tocitem target="./ug/reference/et_resize_help.html">et_resize</tocitem>
+                <tocitem target="./ug/reference/et_zero_pad_help.html">et_zeropad</tocitem>
+                <tocitem target="./ug/reference/et_apply_lesions_help.html">et_apply_lesions</tocitem>
+            </tocitem>
+            <tocitem target="./ug/reference/et_functions_by_cat.html#6">Demos
+                <!-- Inside category, list its functions alphabetically -->
+                <tocitem target="./ug/reference/et_mlem_reconstruct_help.html">et_mlem_reconstruct</tocitem>
+                <tocitem target="./ug/reference/et_mapem_reconstruct_je_help.html">et_mapem_reconstruct_je</tocitem>
+                <tocitem target="./ug/reference/et_noise_bias_help.html">et_noise_bias</tocitem>
+            </tocitem>
+        </tocitem>
+
+
+
+        <!-- Optional List of Examples, with hyperlinks to examples in other files -->
+        <tocitem target="et_example.html" 
+                 image="$toolbox/matlab/icons/help_ex.png">NiftySeg Examples
+        </tocitem>
+
+
+
+        <!-- Optional link or links to your or other Web sites -->
+        <tocitem target="http://cmic.cs.ucl.ac.uk" 
+                 image="$toolbox/matlab/icons/webicon.gif">
+        EmissionTomography Web Site
+        </tocitem>
+
+
+
+    </tocitem>
+</toc>

@@ -1,0 +1,1 @@
+/usr/bin/gcc    -O3 -DNDEBUG   CMakeFiles/unu.dir/unu.c.o  -o ../../../bin/unu -rdynamic ../../../bin/libteem.a -lbz2 /usr/local/lib/libz.so -lpng /usr/local/lib/libz.so -lpng -lpthread -lm -Wl,-rpath,/home/spedemon/Desktop/niftyinstall//lib 

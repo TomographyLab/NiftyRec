@@ -1,0 +1,388 @@
+This documents C coding conventions for Teem, and provides some rationale.
+Feedback on how to better implement the rationale is very welcome on the 
+teem-users mailing list; subscribe at:
+http://lists.sourceforge.net/lists/listinfo/teem-users
+
+============ Basic code formatting
+Example function:
+
+unsigned int
+nrrdSpaceOriginGet(const Nrrd *nrrd,
+                   double vector[NRRD_SPACE_DIM_MAX]) {
+  unsigned int sdi, ret;
+
+  if (nrrd && vector) {
+    for (sdi=0; sdi<nrrd->spaceDim; sdi++) {
+      vector[sdi] = nrrd->spaceOrigin[sdi];
+    }
+    for (sdi=nrrd->spaceDim; sdi<NRRD_SPACE_DIM_MAX; sdi++) {
+      vector[sdi] = AIR_NAN;
+    }
+    ret = nrrd->spaceDim;
+  } else {
+    ret = 0;
+  }
+  return ret;
+}
+
+Note:
+* No tabs, ever. (why: no two editors show them the same)
+* Two spaces per level of indentation
+* In function definition (and only in definition), the function name
+starts a new line (why: makes it trivial to use grep or ack to
+identify which source file contains the function definition, as with
+"ack ^nrrdLoad")
+* opening brace *not* on its own line
+* closing brace gets its own line, except for if/else
+* braces around a branch even if there is only one statement
+(why: there will eventually be more than one statement, even 
+if only for debugging)
+* single blank line between function variable declaration/initialiation 
+and function code
+* An slightly odd idiom that is sometimes used in Teem is using an int
+"E" to store error code, and use "if (!E) E |= " to stop execution
+as soon as there is an error, e.g.:
+  E = 0;
+  if (!E) E |= nrrdResampleDefaultCenterSet(rsmc, nrrdDefaultCenter);
+  if (!E) E |= nrrdResampleNrrdSet(rsmc, nin);
+  if (!E) E |= nrrdResampleBoundarySet(rsmc, sbp->boundary);
+  if (!E) E |= nrrdResampleTypeOutSet(rsmc, nrrdTypeDefault);
+  if (!E) E |= nrrdResampleRenormalizeSet(rsmc, sbp->renormalize);
+  if (E) {
+     ... biff handling;
+  }
+
+Other code formatting points:
+
+* If at all possible please keep lines to 78 characters, like the current line.
+A reference for this is the following line appearing in the source headers:
+  Teem: Tools to process and visualize scientific data and images              
+with spaces at the end to fill out to 78 characters. The exceptions to this
+are things like setting up a gageKind, or an airEnum, where long lines help
+preserve logical structure in fragile things. (why: it is still common for 
+Teem to be edited in a xterm-style window)
+
+* In header files, when using conditionals in the C pre-processor, put
+spaces between the "#" (in the first column) and (for example) the
+"define", so that the logical structure is clearer, e.g:
+
+#if 0
+typedef double coil_t;
+#  define coil_nrrdType nrrdTypeDouble
+#  define COIL_TYPE_FLOAT 0
+#else
+typedef float coil_t;
+#  define coil_nrrdType nrrdTypeFloat
+#  define COIL_TYPE_FLOAT 1
+#endif
+
+This is actually consequential; the current teem/python/ctypes/teem-gen.py
+(automated ctypes wrapper generator) will skip over "#  defines" and only
+reflect the setting of "#defines" in the python interface.
+
+============ Identifiers and their suffixes
+
+* All public symbols (functions and globals) must begin with "lib" or
+"_lib", where "lib" is the library name (air, hest, biff, etc).  All
+#defines must begin with "LIB" or "_LIB" (the only exceptions are the
+TEEM_VERSION #defines described below).  The leading underscore should only
+be used in exceptional circumstances, where there is compelling value in
+making accessible in the API some additional functionality or set of
+function arguments that would otherwise be hidden inside an implementation.
+
+* Every library has a LIB_EXPORT macro which serves the purpose of
+"extern" in a normal C header, but which also handles the Windows
+__declspec weirdness.  These must be used and used consistently.
+
+* In most libraries, function names, struct names, enum value names,
+and variables are in camel case, starting with a lower-case letter
+(e.g. tenExperSpecGradBValSet).  One exception is the nrrd library, in
+which the N is capitalize in Nrrd, NrrdIOState, NrrdKernel, etc.  The
+other exceptions are the ell and tijk library, in which everything is
+lower case, with _ separations (e.g. ell_cubic_root_triple).  In all
+libraries #defines and macros are all upper case, with _ separations
+(e.g. NRRD_INDEX_GEN, TIJK_TYPE_MAX_NUM)
+
+* All functions that use var-args must have a name that ends with "_va".
+There are currently some functions ending with "_nva" (for "no var-args"),
+but in a future version of Teem the _nva may be removed.
+
+* Two versions of a function or variable that represent the same thing,
+except on floats vs doubles, should end with "_f" and "_d"
+
+* Much of Teem is effectively object-oriented, even though not in C++, with
+various structs playing the role of objects.  For struct foo, there will be
+a fooNew() which allocates and initializes in, a fooCopy() which allocates
+a foo to be a copy of an existing foo, fooNix() which destroys it For
+container-like objects (airArray, Nrrd), there is also a fooNuke() which
+additionally frees the contained data, where fooNix() does not.  All
+foo-related functions should start with "foo", and most likely should
+take a foo pointer as their first argument.
+
+* All identifier names should be set up so that whatever is logically
+common between two functions appears as a common prefix, with only the
+suffix changing (e.g. tenInterpTypeQuatGeoLoxK, tenInterpTypeQuatGeoLoxR).
+One effect of this is that verbs (Set, Get, Slice, etc), end up at the very
+*end* of the function name (e.g. tenFiberMultiNew(), tenFiberMultiTrace(),
+tenFiberMultiPolyData()). This may seem awkward, but it is a blessing in
+interactive environments (like ipython) where you want to be doing
+tab-completion on identifiers.  The extreme consistency of Teem function
+names also facilitates automated methods (still under development) for
+wrapping Teem struct foo in a real object-oriented language, with methods
+wrapping foo-related functions.
+
+============ Coding functions
+
+* Following the point about "object-oriented" code above, make an effort
+to logically associate functions with existing structs in a way that
+reflects how you would attach methods to objects.
+
+* In general, Teem functions put the *output* in the first (or first
+few) function arguments.  The remaining arguments are either parms
+then input, or input then parms. For example:
+
+  int nrrdAxisInfoCopy(Nrrd *nout, const Nrrd *nin,
+                       const int *axmap, int excludeBitflag);
+
+copies per-axis information TO nout FROM nin, subject to the other parms.
+
+* When passing an array to a Teem function with length known only
+at run-time (the array is passed as a pointer), the array and the 
+array length must be subsequent arguments, in that order.  The
+array length identifier should ideally be the array identifier,
+suffixed with "Num".  For example, "nin" and "ninNum" here:
+
+  int nrrdJoin(Nrrd *nout, const Nrrd *const *nin,
+               unsigned int ninNum, 
+               unsigned int axis, int incrDim);
+
+* In public headers, ONLY use "..." to indicate var-args arguments.
+"..." should be used in comments (in public headers).  Use ".."
+instead of "..." to refer to a range of things, and ". . ." for
+regular ellipses in text.  (why: to make it trivial to see which
+functions are var-args; they can be the hardest to debug).
+
+* Any functions that are not intending to be public should be "static"
+in their source files, so that nothing accidentally links against them.
+Static functions can use whatever name they want.  
+
+* "parm" means "parameter", "parms" means "parameters"
+
+============ Practices to keep Teem coherent and effective
+
+* air.h supplies TEEM_VERSION #defines that allow other software to know
+what version of Teem a given install is supplying.  These need to be
+updated with each release and patch.  Also, air/miscAir.c supplies const
+strings airTeemVersion (which is just set to TEEM_VERSION_STRING), and
+airTeemReleaseDate; airTeemReleaseDate has to be updated upon release or
+patch
+
+* Use AIR_CAST to cast things. The only exceptions are casting
+things to airMopper to pass to airMopAdd(), and casting to void** to
+pass to the first argument of airArrayNew(). (why: casts are inherently
+tricky, and sources of bugs, so their use should be easily grep-able)
+
+* Use AIR_CALLOC (preferably) or AIR_MALLOC to allocate things (why:
+both explicitly indicate the number of elements, and the size of each,
+and both include the cast from void* to the required pointer type)
+
+* Use airMop functions to manage dynamically-allocated resources to 
+avoid memory leaks.  The idea is that as soon as something is allocated,
+the pointer to the something is passed to airMopAdd, along with the 
+callback function that should be called on that pointer to free the thing.
+You also tell airMopAdd the circumstances under which to call the
+callback: airMopOnError, airMopOnOkay (rarely used), airMopAlways.
+Using airMop allows one to centralize and simplify the management of
+a number of things, especially when the set of things being managed
+can vary depending on parameters or execution path. In C++, you'd use
+smart pointers.  An example is:
+   airArray *mop;
+   double *tmpbuff, *toreturn;
+   ...
+   mop = airMopNew();
+   tmpbuff = AIR_CALLOC(100, double);
+   airMopAdd(mop, tmpbuff, airFree, airMopAlways);
+   toreturn = AIR_CALLOC(100, double);
+   airMopAdd(mop, tmpbuff, airFree, airMopOnError);
+   if (!( tmpbuff && toreturn )) {
+     biffAddf(KEY, "%s: couldn't allocate things", me);
+     airMopError(mop); return NULL;
+   }
+   ...
+   airMopOkay(mop);
+   return toreturn;
+Note that you can safely pass NULL-pointers (pointers set to NULL 
+because of unsuccessful allocations) to airMopAdd, because airFree()
+can be safely called on NULL.  A sequence of allocations might look
+like this:
+   buffA = AIR_CALLOC(sizeA, double);
+   buffB = AIR_CALLOC(sizeB, double);
+   buffC = AIR_CALLOC(sizeC, double);
+   airMopAdd(mop, buffA, airFree, airMopAlways);
+   airMopAdd(mop, buffB, airFree, airMopAlways);
+   airMopAdd(mop, buffC, airFree, airMopAlways);
+or the airMopAdds can be interleaved, depending on clarity.
+
+* All Teem destructor-like functions (nrrdNuke, nrrdNix, limnPolyDataNix,
+gageContextNix, ...) should be no-ops on when passed NULL, if for no other
+reason that it facilitates the practice that you airMopAdd things as soon
+as they are created, even in a sequence of allocations, wherein some of
+them fail.
+
+* Teem relies heavily on C enums to give human-readable names to integer
+values (e.g. nrrdTypeChar, nrrdTypeShort, nrrdTypeFloat, ...).  There are
+strict conventions for setting these up:
+** All enums start with an "unknown" value, with a name ending in "Unknown"
+or "_unknown", the numeric value of which is 0
+** The numeric values of the enum values are set implicitly by the compiler
+to successive integers (which are commonly documented in the header files
+for debugging purposes), rather than explicitly set by hand in the code
+(with a small fixed set of special exceptions, like airEndian)
+** All enums end with a flag "last" value, with a name ending in "Last" or
+"_last"; (why: simple way to test bounds on valid values)
+** None of the Teem enums are typecast to something distinct- the values
+are still just of type "int".  Thus, to collectively refer to the
+{fooBarUnknown, fooBarA, fooBarB, fooBarC ...} enum values, we use
+"fooBar*".  Not using a typecast is a loss of opportunity for some kinds of
+type checking, but is otherwise a big win for simplicity- airEnums (also
+widely used in Teem) map between strings and ints, and can do so generally
+because the ints are not typed as something that will be different for
+every enum.  Also, in many cases, which enum is in play is known only at
+run-time (e.g. the listing of of gageItems in a gage query in a volume for
+which the gageKind is known only at run-time).
+
+* All public airEnums are registered in the "meet" library.  If you add
+a new airEnum, you need to also register it in the meetAirEnumAll() function
+in teem/src/meet/enumall.c.  Also, all public airEnums should be declared as
+  const airEnum *const enumName;
+
+* Whenever there is an lookup-table array (created at compile time) to
+accompany the values in a C enum (e.g. nrrdTypeIsIntegral[] array 
+indexed by values from nrrdType* enum):
+** initialize only one value per line
+** include with each line a comments that names the enum value
+(e.g. nrrdTypeFloat) for which this is the value (why: then it becomes
+trivial to use grep/ack to find things that need to be updated
+when the set of values in the enum is changed)
+
+* Anything that behaves and is used like a bool should be type "int".
+Teem coders are expected to know that in C non-zero IS true, and zero
+IS false, so for example "if (!ptr) { errorhandle(); }" is the
+preferred way to call errorhandle() if pointer ptr is NULL.  Thanks
+to the convention of starting enums with an "unknown" value, the
+unknown value is 0 (false), and all legit values are non-zero (true),
+and Teem code often assumes this.
+
+* Everywhere except air and hest, use the biff library for registering
+error messages.  The annoyances of biff (currently not thread-safe to
+use, limited to textual descriptions with no additional numeric codes)
+are outweighed by the value of providing rich information about the
+context and circumstances of errors.  The main function to use is
+  biffAddf(LIBNAME, "%s: error message", me);
+where me identifies what function you're in:
+  static const char me[]="functionName";
+The error messages passed to biff shouldn't contain newlines.  It is
+standard, at the beginning of a function, to have a long list of checks and
+tests, all of which might fail with a biff error message, before getting on
+with the main purpose of the function.  Think of these as asserts() but
+more graceful and more informative.  It not a problem for the error
+checking to take up more space than the core functionality.
+
+* In any place where you have list all Teem libraries (which might happen
+in make files, documentation, symbol enumeration, etc), then always include
+the word "TEEM_LIB_LIST" nearby (to facilitate consistent maintenance),
+and always list the libraries in this dependency order (or its opposite):
+
+  air hest biff nrrd ell unrrdu alan moss tijk gage dye bane
+  limn echo hoover seek ten elf pull coil push mite meet
+
+* All libraries "lib" contain a const int "libPresent", defined in one
+of the first .c files the header refers to (which .c is not fixed). 
+The presence of this symbol provides a way to test which libraries
+are part of a given Teem shared library.  Tradition dictates that the
+libPresent variable is set to 42, but this is not necessary.
+
+* Teem uses size_t-type variables quite a bit, and also ptrdiff_t (at
+least in nrrdPad_nva and nrrdPad_va).  Sometimes these values have to
+passed {s,f,}printf, but ANSI C has no "format specifiers" for that
+(as with %d for int, %u for unsigned int).  Teem has used macros
+_AIR_SIZE_T_CNV and _AIR_PTRDIFF_T_CNV for this, but setting these is
+a complicated compile-time task that is completely
+architecture-dependent, and which also relied on TEEM_32BIT, which
+has been removed. Ultimately, the nicest thing to do (but which
+will require significant work) would be to re-implement {s,f,}printf
+(or copy an implementation with suitable licensing).  Until then, we
+use airSprintSize_t and airSprintPtrdiff_t to sprint a single size_t
+or ptrdiff_t variable to a buffer string (typically char
+stmp[AIR_STRLEN_SMALL]) which is then handled via %s.  This is
+admittedly clumsy; it will be one of the first things to be fixed in
+Teem 2.0.
+
+* The stand-alone NrrdIO library for reading and writing NRRD files is
+created by automatic means from the Teem source tree.  To facilitate
+that transformation, there are some special comments that delimit
+code sections and particular lines.  These appear only the air, biff,
+and nrrd libraries; these are the source of all the NrrdIO source.
+Sections of code *not* needed for NrrdIO (in files that do supply other
+things needed for NrrdIO) are delimited by:
+/* ---- BEGIN non-NrrdIO */
+/* ---- END non-NrrdIO */
+Special lines that need different processing are tagged with
+/* NrrdIO-hack-001 */
+/* NrrdIO-hack-002 */
+...
+Respecting the placement and content of these comments is not important
+for Teem itself, but is essential for regenerating NrrdIO.
+
+============ Other coding practices
+
+* If a pointer argument to a function can be const, make it const.  In
+upcoming versions this may be applied to non-pointer arguments as well.
+
+* If something is logically an unsigned quantity (mainly, indices into
+arrays, or quantities of things), then make it unsigned.  Use size_t
+for anything that might be generated by sizeof(), or is logically 
+equivalent to what sizeof() is describing
+
+* Avoid magic constants embedded in code, use instead either a #define or
+one of the many enum values
+
+* Try to spell check comments
+
+* Avoid single-letter variable names (why: too hard to search for usage)
+"uu" is better than "u".
+
+* In the common circumstance that there are two variables, a float or 
+double which represents a continuous quantity, and an int or unsigned int
+that represents a discretized version of the same, the two variable names
+should start the same, but the discrete one ends with "i" or "Idx", e.g.
+"uu" vs. "uuIdx", or "uu" vs. "uui"
+
+* Try to avoid making local copies of variables in structs, just for
+the sake of code brevity when those variables won't change during the
+scope of the function.  Hopefully the struct is const, so the compiler
+can do the right thing.
+
+* Use "return" correctly: no parens!  "exit()" does have parens.
+
+* If a pointer should be initialized to NULL, then set it to NULL; Don't
+assume that a pointer in a struct will be NULL following a calloc.
+
+* New libraries should be added only when it is abundantly obvious
+that no existing library can contain the intended functionality.  By
+convention adopted in 2002, all Teem library names must be a WORD, not
+an acronym.  The language of the word need not be English (e.g. tijk,
+Dutch for ticking, the fabric of pillow and mattress covering)
+
+* Parts of the GNU style (http://www.gnu.org/prep/standards.html) which 
+have been more or less followed in Teem:
+- avoid arbitrary limits on (memory) sizes of things (this is very hard)
+- be robust about handling of non-ASCII input where ASCII is expected
+- be super careful about handling of erroneous system call return,
+  and always err on the side of being paranoid/defensive in matters of
+  error detection and reporting.
+- check every single malloc/calloc for NULL return
+- for expressions split on multiple lines, split before an operator, not after
+- use parens on multi-line expressions to make them tidy
+- Don't over-use assignments inside if-conditional, if doing so be sure to
+  put an extra set of parens around it to highlight what's going on.

@@ -1,0 +1,133 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      --><title>et_project</title><meta name="generator" content="MATLAB 7.9"><meta name="date" content="2010-05-27"><meta name="m-file" content="et_project_help"><style type="text/css">
+
+body {
+  background-color: white;
+  margin:10px;
+}
+
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows. */ 
+p,h1,h2,div.content div {
+  max-width: 600px;
+  /* Hack for IE6 */
+  width: auto !important; width: 600px;
+}
+
+pre.codeinput {
+  background: #EEEEEE;
+  padding: 10px;
+}
+@media print {
+  pre.codeinput {word-wrap:break-word; width:100%;}
+} 
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.codeoutput {
+  color: #666666;
+  padding: 10px;
+}
+
+pre.error {
+  color: red;
+}
+
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+  </style></head><body><div class="content"><h1>et_project</h1><!--introduction--><p>Projection function for Emission Tomographic reconstruction</p><!--/introduction--><h2>Contents</h2><div><ul><li><a href="#1">Description</a></li><li><a href="#2">GPU acceleration</a></li><li><a href="#3">Algorithm notes</a></li><li><a href="#4">Reference</a></li><li><a href="#5">Example</a></li><li><a href="#6">See also</a></li><li><a href="#7">Source</a></li></ul></div><h2>Description<a name="1"></a></h2><p>Function for projection of activity into detector space.</p><p><tt>sinogram = et_project(activity,cameras,psf,use_gpu,background)</tt></p><p><tt>activity</tt> is a 2D or 3D matrix of activity.</p><p><tt>cameras</tt> specifies camera positions and it can be expressed in two forms: a matrix of size <tt>[n,3]</tt> representing angular position of each camera with respect of x,y,z axis; or a column vector of length <tt>n</tt> where for each camera, only rotation along z axis is specified. This is the most common situation in PET and SPECT where the gantry rotates along a single axis.</p><p><tt>psf</tt> is a Depth-Dependent Point Spread Function.</p><p><tt>use_gpu</tt> is optional and it enables GPU acceleration if a compatible GPU device is installed in the system. By default use_gpu is set to 0 (disabled).</p><p><tt>background</tt> is the value the background is set to when performing rotation. It defaults to 0.</p><h2>GPU acceleration<a name="2"></a></h2><p>If a CUDA compatible Grahpics Processing Unit (GPU) is installed, the projection algorithm can take advantage of it. Set use_gpu parameter to 1 to enable GPU acceleration. If GPU acceleration is not available, the value of the parameter is uninfluential.</p><h2>Algorithm notes<a name="3"></a></h2><p>Rotation based projection algorithm with trilinear interpolation. Depth-Dependent Point Spread Function is applyed in the frequency domain.</p><h2>Reference<a name="4"></a></h2><p>Pedemonte, Bousse, Erlandsson, Modat, Arridge, Hutton, Ourselin, "GPU Accelerated Rotation-Based Emission Tomography Reconstruction", NSS/MIC 2010</p><h2>Example<a name="5"></a></h2><pre class="codeinput">N = 128;
+use_gpu = 1;
+activity = ones(128,128,128);
+PSF = ones(3,3,128);
+cameras = [0:pi/100:pi]';
+sinogram = et_project(activity,cameras,PSF,use_gpu);
+</pre><h2>See also<a name="6"></a></h2><p><a href="et_backproject_help.html"><tt>et_backproject</tt></a>, <a href="et_mlem_reconstruct_help.html"><tt>et_mlem_reconstruct</tt></a>, <a href="et_list_gpus_help.html"><tt>et_list_gpus</tt></a>, <a href="et_set_gpu_help.html"><tt>et_set_gpu</tt></a>,</p><h2>Source<a name="7"></a></h2><p>Stefano Pedemonte</p><p>Copyright 2009-2010 CMIC, UCL Gower Street, London, UK</p><p class="footer"><br>
+      Published with MATLAB&reg; 7.9<br></p></div><!--
+##### SOURCE BEGIN #####
+%% et_project
+% Projection function for Emission Tomographic reconstruction
+%
+%% Description
+% Function for projection of activity into detector space.
+%
+% |sinogram = et_project(activity,cameras,psf,use_gpu,background)|
+%
+% |activity| is a 2D or 3D matrix of activity.
+%
+% |cameras| specifies camera positions and it can be expressed in two forms: 
+% a matrix of size |[n,3]| representing angular position of each camera 
+% with respect of x,y,z axis; or a column vector of length |n| where for each 
+% camera, only rotation along z axis is specified. This is the most common 
+% situation in PET and SPECT where the gantry rotates along a single axis.
+%
+% |psf| is a Depth-Dependent Point Spread Function.
+%
+% |use_gpu| is optional and it enables GPU acceleration if a compatible GPU 
+% device is installed in the system. By default use_gpu is set to 0 (disabled).
+%
+% |background| is the value the background is set to when performing rotation.
+% It defaults to 0.
+%
+%% GPU acceleration
+% If a CUDA compatible Grahpics Processing Unit (GPU) is installed, 
+% the projection algorithm can take advantage of it. Set use_gpu parameter
+% to 1 to enable GPU acceleration. If GPU acceleration is not available, 
+% the value of the parameter is uninfluential.
+%
+%% Algorithm notes
+% Rotation based projection algorithm with trilinear interpolation.
+% Depth-Dependent Point Spread Function is applyed in the frequency domain.
+%
+%% Reference
+% Pedemonte, Bousse, Erlandsson, Modat, Arridge, Hutton, Ourselin, 
+% "GPU Accelerated Rotation-Based Emission Tomography Reconstruction", NSS/MIC 2010
+%
+%% Example
+N = 128;
+use_gpu = 1;
+activity = ones(128,128,128);
+PSF = ones(3,3,128);
+cameras = [0:pi/100:pi]';
+sinogram = et_project(activity,cameras,PSF,use_gpu);
+
+%% See also
+% <et_backproject_help.html |et_backproject|>, <et_mlem_reconstruct_help.html |et_mlem_reconstruct|>,
+% <et_list_gpus_help.html |et_list_gpus|>, <et_set_gpu_help.html |et_set_gpu|>,
+
+%% Source
+% Stefano Pedemonte
+%
+% Copyright 2009-2010 CMIC, UCL
+% Gower Street, London, UK
+
+
+
+##### SOURCE END #####
+--></body></html>
