@@ -118,6 +118,7 @@ unsigned int PET_backproject_compressed_cpu(nifti_image *backprojectionImage, ni
 unsigned int et_spherical_phantom(nifti_image *phantomImage, float centerx, float centery, float centerz, float radius, float inner_value, float outer_value); 
 unsigned int et_cylindrical_phantom(nifti_image *phantomImage, float centerx, float centery, float centerz, float radius, float length, unsigned int axis, float inner_value, float outer_value); 
 unsigned int et_spheres_ring_phantom(nifti_image *phantomImage, float centerx, float centery, float centerz, float ring_radius, float min_sphere_radius, float max_sphere_radius, unsigned int N_spheres, float inner_value, float outer_value, float taper, unsigned int ring_axis); 
+unsigned int et_cylinders_ring_phantom(nifti_image *phantomImage, float centerx, float centery, float centerz, float ring_radius, float length, float min_cylinder_radius, float max_cylinder_radius, unsigned int N_cylinders, float inner_value, float outer_value, float taper, unsigned int ring_axis);
 
 unsigned int tr_resample_grid_cpu(nifti_image *resampled, nifti_image *image, nifti_image *grid, float background, unsigned int interpolation_mode); 
 #ifdef _USE_CUDA

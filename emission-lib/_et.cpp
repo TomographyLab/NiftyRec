@@ -4054,6 +4054,85 @@ unsigned int et_spheres_ring_phantom(nifti_image *phantomImage, float centerx, f
     return niftyrec_success; 
 }
 
+unsigned int et_cylinders_ring_phantom(nifti_image *phantomImage, float centerx, float centery, float centerz, float ring_radius, float length, float min_cylinder_radius, float max_cylinder_radius, unsigned int N_cylinders, float inner_value, float outer_value, float taper, unsigned int ring_axis)
+{    
+    if (ring_axis > 2) {
+        return 1; 
+    }
+    alloc_record *memory_record = alloc_record_create(RECORD_MAXELEMENTS);
+    
+    // 1) allocate temporary image of the same size as the output image
+    nifti_image *tmpImage = nifti_copy_nim_info(phantomImage);
+    tmpImage->data = (void*) calloc(tmpImage->nvox, tmpImage->nbyper); 
+    alloc_record_add(memory_record,tmpImage,ALLOCTYPE_NIFTI); 
+
+    if (inner_value == 0.0) 
+        inner_value = inner_value + 1e-12; 
+    float *phantom_data = (float*) phantomImage->data;
+    float *tmp_data = (float*) tmpImage->data;
+    float c[4]; float c_rotated[4];
+    mat44 *rotation_m = (mat44 *)calloc(1,sizeof(mat44)); 
+    alloc_record_add(memory_record,(void*)rotation_m,ALLOCTYPE_HOST); 
+    float angle; 
+    float current_taper; 
+     
+    // 2) make one sphere at the time and sum into the output image 
+    for (int i=0; i<N_cylinders; i++) { 
+        // Compute the center of the sphere:
+        angle         = i*2*PI/ (float) N_cylinders; 
+        current_taper = -0.5*taper + i*taper/(float)(N_cylinders-1);
+
+        if (ring_axis == 0) {
+            // Ring around the X axis: 
+            c[0] = centerx + current_taper; 
+            c[1] = centery + ring_radius; 
+            c[2] = centerz; 
+            c[3] = 1;
+            et_create_rotation_matrix(rotation_m,   angle, 0, 0,   centerx, centery, centerz, XYZ_ROTATION); 
+        }
+        else if (ring_axis == 1) {
+            // Ring around the Y axis: 
+            c[0] = centerx; 
+            c[1] = centery + current_taper; 
+            c[2] = centerz + ring_radius; 
+            c[3] = 1;
+            et_create_rotation_matrix(rotation_m,   0, angle, 0,   centerx, centery, centerz, XYZ_ROTATION); 
+        }
+        else if (ring_axis == 2) { 
+            // Ring around the Z axis: 
+            c[0] = centerx + ring_radius; 
+            c[1] = centery; 
+            c[2] = centerz + current_taper; 
+            c[3] = 1;
+            et_create_rotation_matrix(rotation_m,   0, 0, angle,   centerx, centery, centerz, XYZ_ROTATION); 
+        }
+        reg_mat44_mul(rotation_m, c, c_rotated); 
+        // The radius of the sphere increases linearly from min_sphere_radius to max_sphere_radius:
+        float r  = min_cylinder_radius + i*(max_cylinder_radius-min_cylinder_radius)/(N_cylinders -1); 
+        
+        // Make sphere: 
+        et_cylindrical_phantom(tmpImage, c_rotated[0], c_rotated[1], c_rotated[2], r, length, ring_axis, inner_value, 0.0);
+        
+        // Set value inside of the spheres (inner_value): 
+        for (int j=0; j<phantomImage->nvox; j++) {
+            // This sets the value to 'inner_value' also in the regions where two or more spheres eventually intersect: 
+            phantom_data[j] += (1-bool(phantom_data[j])) * tmp_data[j];  
+        }
+        memset((void*) tmp_data, 0, sizeof(float)*tmpImage->nvox); 
+    }
+
+    // 3) Set outer value in all voxels that are set to zero (note that if inner_value is set to 0, EPS is added)
+    for (int i=0; i<phantomImage->nvox; i++) {
+        if (phantom_data[i]==0.0) 
+            phantom_data[i] = outer_value;
+    }
+
+    /*Free*/
+    if ( alloc_record_destroy(memory_record) ) 
+            return niftyrec_error_alloccpu;     
+    return niftyrec_success; 
+}
+
 
 
 

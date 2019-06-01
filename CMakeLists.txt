@@ -1,32 +1,32 @@
 
 #  CMakeLists.txt
-#  
+#
 #  NiftyRec
-#  Stefano Pedemonte, 2009-2013. 
+#  Stefano Pedemonte, 2009-2013.
 #  - CMIC - Centre for Medical Image Computing, UCL, London. (2009-2013)
 #  - Aalto University School of Science, Helsinki. (2013-2014)
 #  - A.A. Martinos Center for Biomedical Imaging, MGH, Harvard University. Boston. (2013-2014)
-#  Released under BSD licence, see LICENSE.txt 
+#  Released under BSD licence, see LICENSE.txt
 
 
 #-----------------------------------------------------------------------------
-# Set default options: 
+# Set default options:
 
-# Set default build type to Release. If -DCMAKE_BUILD_TYPE is specified on the command line, use that definition instead. 
+# Set default build type to Release. If -DCMAKE_BUILD_TYPE is specified on the command line, use that definition instead.
 IF(DEFINED CMAKE_BUILD_TYPE)
-   SET(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose the type of 
+   SET(CMAKE_BUILD_TYPE ${CMAKE_BUILD_TYPE} CACHE STRING "Choose the type of
 build, options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug
-Release.") 
+Release.")
 ELSE()
    SET(CMAKE_BUILD_TYPE Release CACHE STRING "Choose the type of build,
-options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release.") 
+options are: None(CMAKE_CXX_FLAGS or CMAKE_C_FLAGS used) Debug Release.")
 ENDIF()
 
-# Set default install prefix. If -DCMAKE_INSTALL_PREFIX is specified on the command line, use that definition instead. 
-SET(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/../NiftyRec_install/ CACHE PATH "NiftyRec install prefix")
+# Set default install prefix. If -DCMAKE_INSTALL_PREFIX is specified on the command line, use that definition instead.
+SET(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_BINARY_DIR}/../NiftyRec/ CACHE PATH "NiftyRec install prefix")
 
 #-----------------------------------------------------------------------------
-# Setup CMake project: 
+# Setup CMake project:
 
 PROJECT(nifty_rec)
 
@@ -36,13 +36,13 @@ INCLUDE(ExternalProject)
 ENABLE_TESTING()
 
 #-----------------------------------------------------------------------------
-# NiftyRec version: 
+# NiftyRec version:
 SET(Nifty_Rec_VERSION_MAJOR 3)
-SET(Nifty_Rec_VERSION_MINOR 0)
+SET(Nifty_Rec_VERSION_MINOR 1)
 SET(Nifty_Rec_VERSION_PATCH 0)
 
 #-----------------------------------------------------------------------------
-# Build options: 
+# Build options:
 OPTION(NiftyRec_BUILD_APPS          "Build command line applications (including 3D Slicer plugins)" OFF)
 OPTION(NiftyRec_BUILD_MATLAB        "Build Matlab extension modules" OFF)
 IF(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
@@ -53,10 +53,10 @@ IF(NOT ${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
     ENDIF()
 ENDIF()
 OPTION(NiftyRec_INCLUDE_DATA        "Include data sets for examples and demos" ON)
-OPTION(NiftyRec_USE_CUDA            "Compile GPU implementation of the code" OFF)
+OPTION(NiftyRec_USE_CUDA            "Compile GPU implementation of the code" ON)
 OPTION(NiftyRec_SUPPORT_NRRD        "Support NRRD image file format. Enable to generate 3D Slicer plugins." OFF)
 OPTION(NiftyRec_COMPILE_DOC         "Compile pdf documentation from the Latex source" OFF)
-OPTION(NiftyRec_BUILD_RENDERER      "Build NiftyRec volume renderer" OFF)
+OPTION(NiftyRec_BUILD_RENDERER      "Build NiftyRec volume renderer" ON)
 OPTION(NiftyRec_VERBOSE             "Print out extra information when compiling" OFF)
 
 IF(NiftyRec_BUILD_RENDERER)
@@ -74,10 +74,10 @@ SET(NiftyRec_DO_PACKAGE ON)
 IF(CMAKE_CONFIGURATION_TYPES)
     set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "limited configs" FORCE)
 ENDIF(CMAKE_CONFIGURATION_TYPES)
-SET(CMAKE_BUILD_TYPE "Release") 
+SET(CMAKE_BUILD_TYPE "Release")
 
 #-----------------------------------------------------------------------------
-# Setup OpenMP multiprocessing environment. 
+# Setup OpenMP multiprocessing environment.
 FIND_PACKAGE(Threads)
 IF(NiftyRec_USE_OPENMP)
     EXECUTE_PROCESS(COMMAND ${CMAKE_C_COMPILER} -dumpversion OUTPUT_VARIABLE GCC_VERSION)
@@ -92,7 +92,7 @@ IF(NiftyRec_USE_OPENMP)
 ENDIF(NiftyRec_USE_OPENMP)
 
 #-----------------------------------------------------------------------------
-# Setup CUDA environment: 
+# Setup CUDA environment:
 
 SET(USE_CUDA 0)
 IF(NiftyRec_USE_CUDA)
@@ -102,7 +102,7 @@ IF(NiftyRec_USE_CUDA)
         SET(CUDA_NVCC_FLAGS "${CUDA_NVCC_FLAGS};-D_USE_CUDA")
         INCLUDE_DIRECTORIES(${CUDA_TOOLKIT_INCLUDE})
 
-        # MAC OSX 10.8 and 10.9 compatibility 
+        # MAC OSX 10.8 and 10.9 compatibility
         IF(APPLE)
                 EXEC_PROGRAM(uname ARGS -v  OUTPUT_VARIABLE DARWIN_VERSION)
                 STRING(REGEX MATCH "[0-9]+" DARWIN_VERSION ${DARWIN_VERSION})
@@ -112,13 +112,13 @@ IF(NiftyRec_USE_CUDA)
                         #SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -F/Library/Frameworks -framework CUDA")
                         SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -F/Library/Frameworks")
                         SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -F/Library/Frameworks")
-                ENDIF(DARWIN_VERSION GREATER 12) 
-ENDIF(APPLE) 
+                ENDIF(DARWIN_VERSION GREATER 12)
+ENDIF(APPLE)
 
 ENDIF(NiftyRec_USE_CUDA)
 
 #-----------------------------------------------------------------------------
-# Setup the bindings for Matlab 
+# Setup the bindings for Matlab
 
 IF(UNIX AND NiftyRec_BUILD_MATLAB AND NOT NiftyRec_BUILD_SHARED)
         MESSAGE("Unix platform: desabling Matlab extension because libraries are not built as shared.")
@@ -126,9 +126,9 @@ IF(UNIX AND NiftyRec_BUILD_MATLAB AND NOT NiftyRec_BUILD_SHARED)
 ENDIF()
 
 #-----------------------------------------------------------------------------
-# Set build options: 
+# Set build options:
 
-# Decide whether to build as static or shared: 
+# Decide whether to build as static or shared:
 IF(NiftyRec_BUILD_SHARED)
         SET(LIB_TYPE SHARED)
         IF(UNIX)
@@ -146,7 +146,7 @@ ELSE(NiftyRec_BUILD_SHARED)
         SET(LIB_TYPE STATIC)
 ENDIF(NiftyRec_BUILD_SHARED)
 
-# Print verbose information at build time: 
+# Print verbose information at build time:
 IF(NiftyRec_VERBOSE)
 	ADD_DEFINITIONS(-D_VERBOSE)
         SET(CUDA_VERBOSE_BUILD ON)
@@ -154,11 +154,11 @@ ELSE(NiftyRec_VERBOSE)
         SET(CUDA_VERBOSE_BUILD OFF)
 ENDIF(NiftyRec_VERBOSE)
 
-# Store relative path information in each library. This avoids setting LD_LIBRARY_PATH manually: 
+# Store relative path information in each library. This avoids setting LD_LIBRARY_PATH manually:
 #SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 #SET(CMAKE_INSTALL_RPATH ${CMAKE_INSTALL_PREFIX}/${LIB_INSTALL_DIR})
 
-# Build Teem NRRD libraries: 
+# Build Teem NRRD libraries:
 IF(NiftyRec_SUPPORT_NRRD)
         ADD_DEFINITIONS(-D_SUPPORT_NRRD)
 ENDIF(NiftyRec_SUPPORT_NRRD)
@@ -174,7 +174,8 @@ IF(NiftyRec_SUPPORT_NRRD)
         SUBDIRS(teem)
 ENDIF(NiftyRec_SUPPORT_NRRD)
 
-# Build NiftyRec emission libraries:  
+###############################################################################
+# Build NiftyRec emission libraries:
 SET(NIFTY_REC_ET_INTERF_LIBRARY _et_array_interface)
 SET(NIFTY_REC_ET_LIBRARIES _et_common _niftyrec_memory _et_line_integral _et_line_integral_attenuated _et_line_backproject_attenuated _et_line_backproject _et_accumulate _et_clear_accumulator _et_convolve2D _et_convolveSeparable2D _et_convolveFFT2D)
 SET(NIFTY_REC_ET_LIBRARIES_GPU _et_line_integral_gpu _et_line_integral_attenuated_gpu _et_line_backproject_gpu _et_line_backproject_attenuated_gpu _et_clear_accumulator_gpu _et_accumulate_gpu _et_convolveSeparable2D_gpu _et_convolveFFT2D_gpu _et_attenuation_gradient_gpu _pet_line_integral_compressed_gpu _pet_line_backproject_compressed_gpu)
@@ -190,11 +191,12 @@ IF(NiftyRec_USE_CUDA)
 	SUBDIRS(emission-lib_gpu)
 ENDIF(NiftyRec_USE_CUDA)
 
-# Build NiftyRec transmission libraries: 
+###############################################################################
+# Build NiftyRec transmission libraries:
 SET(NIFTY_REC_TT_INTERF_LIBRARY _tt_array_interface)
 SET(NIFTY_REC_TT_LIBRARIES _tt_common _tt_line_project_ray_cpu _tt_line_backproject_ray_cpu)
-SET(NIFTY_REC_TT_LIBRARIES_GPU _tt_line_project_ray_gpu _tt_line_backproject_ray_gpu) 
-SET(NIFTY_REC_TT_MEX tt_project_ray_mex tt_backproject_ray_mex) 
+SET(NIFTY_REC_TT_LIBRARIES_GPU _tt_line_project_ray_gpu _tt_line_backproject_ray_gpu)
+SET(NIFTY_REC_TT_MEX tt_project_ray_mex tt_backproject_ray_mex)
 
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/transmission-lib)
 IF(NiftyRec_USE_CUDA)
@@ -206,7 +208,8 @@ IF(NiftyRec_USE_CUDA)
 	SUBDIRS(transmission-lib_gpu)
 ENDIF(NiftyRec_USE_CUDA)
 
-#Build NiftyReg Libraries 
+###############################################################################
+#Build NiftyReg Libraries
 SET(NIFTY_REC_REG_INTERF_LIBRARY _reg_array_interface)
 
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/reg-lib)
@@ -216,10 +219,12 @@ SUBDIRS(reg-lib_gpu)
 SET(NIFTY_REG_LIBRARIES reg_nifti _reg_tools _reg_resampling _reg_affineTransformation _reg_bspline _reg_ssd _reg_mutualinformation _reg_blockMatching )
 SET(NIFTY_REG_LIBRARIES_GPU _reg_cudaCommon _reg_resampling_gpu _reg_affineTransformation_gpu _reg_mutualinformation_gpu _reg_bspline_gpu _reg_tools_gpu _reg_blockMatching_gpu)
 
-# Build NiftySeg libraries: 
+###############################################################################
+# Build NiftySeg libraries:
 INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/seg-lib)
 SUBDIRS(seg-lib)
 
+###############################################################################
 # Build Matlab extensions
 IF(NiftyRec_BUILD_MATLAB)
         SET(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/CMake/matlab")
@@ -227,31 +232,36 @@ IF(NiftyRec_BUILD_MATLAB)
         SUBDIRS(Matlab)
 ENDIF(NiftyRec_BUILD_MATLAB)
 
+###############################################################################
 # Build volume renderer
 IF(NiftyRec_BUILD_RENDERER)
         SUBDIRS(volume_render)
 ENDIF(NiftyRec_BUILD_RENDERER)
 
+###############################################################################
 # Build documentation
 IF(NiftyRec_COMPILE_DOC)
         SUBDIRS(documentation)
 ENDIF(NiftyRec_COMPILE_DOC)
 
+###############################################################################
 # Build applications
 IF(NiftyRec_BUILD_APPS)
         SUBDIRS(apps)
 ENDIF(NiftyRec_BUILD_APPS)
 
-# Build data 
+###############################################################################
+# Build data
 IF(NiftyRec_INCLUDE_DATA)
     SUBDIRS(data)
 ENDIF(NiftyRec_INCLUDE_DATA)
 
-# Build miscellaneous 
+###############################################################################
+# Build miscellaneous
 SUBDIRS(misc)
 
 #-----------------------------------------------------------------------------
-# Set installation directories: 
+# Set installation directories:
 SET(LIB_INSTALL_DIR "lib")
 SET(BIN_INSTALL_DIR "niftyrec/bin")
 SET(INC_INSTALL_DIR "include")
@@ -261,11 +271,11 @@ SET(MEX_INSTALL_DIR_NIFTYREG "niftyreg/matlab")
 SET(MEX_INSTALL_DIR_NIFTYSEG "niftyseg/matlab")
 
 #-----------------------------------------------------------------------------
-# Build NiftyRec packages: 
-# 1) .deb installer for Linux Debian, Ubuntu, Knoppix, ..; 
+# Build NiftyRec packages:
+# 1) .deb installer for Linux Debian, Ubuntu, Knoppix, ..;
 # 2) NSIS self installer for Windows;
 # 3) Drag and drop installer for MacOsX;
-# 4) Compressed source tree. 
+# 4) Compressed source tree.
 
 IF(NiftyRec_DO_PACKAGE)
         IF(UNIX)
@@ -337,10 +347,10 @@ IF(NiftyRec_DO_PACKAGE)
 ENDIF(NiftyRec_DO_PACKAGE)
 
 #-----------------------------------------------------------------------------
-# Hide unnecessary build options 
+# Hide unnecessary build options
 MACRO ( MARK_AS_INTERNAL _var )
   SET ( ${_var} ${${_var}} CACHE INTERNAL "hide this!" FORCE )
-ENDMACRO( MARK_AS_INTERNAL _var ) 
+ENDMACRO( MARK_AS_INTERNAL _var )
 
 MARK_AS_INTERNAL(Teem_PNG)
 MARK_AS_INTERNAL(Teem_PTHREAD)
@@ -356,9 +366,7 @@ MARK_AS_INTERNAL(BUILD_SHARED_LIBS)
 MARK_AS_INTERNAL(BUILD_HEX)
 MARK_AS_INTERNAL(BUILD_EXPERIMENTAL_APPS)
 MARK_AS_INTERNAL(BUILD_EXPERIMENTAL_LIBS)
-MARK_AS_INTERNAL(CUDA_BUILD_CUBIN) 
-MARK_AS_INTERNAL(CUDA_VERBOSE_BUILD) 
-MARK_AS_INTERNAL(CUDA_SDK_ROOT_DIR) 
-#----------------------------------------------------------------------------- 
-
-
+MARK_AS_INTERNAL(CUDA_BUILD_CUBIN)
+MARK_AS_INTERNAL(CUDA_VERBOSE_BUILD)
+MARK_AS_INTERNAL(CUDA_SDK_ROOT_DIR)
+#-----------------------------------------------------------------------------

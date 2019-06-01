@@ -542,6 +542,7 @@ extern "C" void run_gui(int volume_x, int volume_y, int volume_z, int camera_x, 
     char **argv=NULL;
 
     cudaGLSetGLDevice( gpuGetMaxGflopsDeviceId() );
+    initGL( &argc, argv ) ;
     if (initGL( &argc, argv )) return;
 
     // load volume data
