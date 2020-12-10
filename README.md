@@ -95,6 +95,11 @@ the original change-log will follow:
 -- NiftyRec 1.6.8 (Rel. Mar. 2013) -- 
     * Fixed compilation issues under Windows
 
+-- [...]
+
+-- NiftyRec 3.0.0 (Rel. Feb. 2019) -- 
+    * Current latest version
+
 ######################################################################################
 
 -----------------------------------
@@ -111,7 +116,10 @@ libraries, Matlab (mex and mx) and the Python interpreter.
 CMake simplifies the build process across the supported platforms. 
 Further details are in the Programming Manual of NiftyRec.
 
---Linux and MAC
+***Note***: *to compile with versions of CUDA newer than 9.0 you will need*
+*a version of CMake newer than 3.12*
+
+--**Linux and MAC**
 
    Install ccmake or cmake-gui. Download and uncompress source. cd to the 
    project main directory, create here a folder 'build', cd to that folder 
@@ -133,11 +141,11 @@ Further details are in the Programming Manual of NiftyRec.
 
    In order to install NiftyRec in the system run make with option 'install'
 
-   ..$ sudo make install  
+   ..$ make install 
 
    or install the package created with 'make package'.
 
---Windows
+--**Windows** (unsupported)
 
    Install cmake. Download and uncompress source. Open the source directory 
    with Windows Explorer and create here a new folder 'build'. Launch CMake 
