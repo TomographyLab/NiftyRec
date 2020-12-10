@@ -8,4 +8,4 @@
  *  Released under BSD licence, see LICENSE.txt 
  */
 
-#define VERSION "3.0"
+#define VERSION "3.1"
